@@ -1,30 +1,32 @@
 # PawPal+ (Module 2 Project)
 
-You are building **PawPal+**, a Streamlit app that helps a pet owner plan care tasks for their pet.
+**PawPal+** is a pet care scheduling app built with Python and Streamlit. It helps pet owners plan daily care tasks across multiple pets, with sorting, filtering, conflict detection, and recurring task support.
 
-## Scenario
+## Features
 
-A busy pet owner needs help staying consistent with pet care. They want an assistant that can:
+- Add multiple pets with name, species, and age
+- Schedule care tasks with time, duration, priority, and frequency
+- View today's schedule sorted chronologically
+- Filter tasks by pet or completion status
+- Detect scheduling conflicts (same time on same date)
+- Recurring tasks: daily and weekly tasks auto-generate their next instance on completion
+- Streamlit web UI with interactive controls
+- CLI demo script for quick testing
 
-- Track pet care tasks (walks, feeding, meds, enrichment, grooming, etc.)
-- Consider constraints (time available, priority, owner preferences)
-- Produce a daily plan and explain why it chose that plan
+## Classes
 
-Your job is to design the system first (UML), then implement the logic in Python, then connect it to the Streamlit UI.
+- **Task** (dataclass): description, time, duration, priority, frequency, due_date, completed, pet_name. Method: `mark_complete()`.
+- **Pet** (dataclass): name, species, age, tasks. Methods: `add_task()`, `remove_task()`, `get_tasks()`, `task_count()`.
+- **Owner**: name, pets. Methods: `add_pet()`, `get_pet()`, `get_all_tasks()`.
+- **Scheduler**: owner. Methods: `get_todays_schedule()`, `sort_by_time()`, `filter_tasks()`, `detect_conflicts()`, `mark_task_complete()`.
 
-## What you will build
+## UML Diagram
 
-Your final app should:
+![UML Class Diagram](diagrams/uml_final.png)
 
-- Let a user enter basic owner + pet info
-- Let a user add/edit tasks (duration + priority at minimum)
-- Generate a daily schedule/plan based on constraints and priorities
-- Display the plan clearly (and ideally explain the reasoning)
-- Include tests for the most important scheduling behaviors
+The Mermaid source is at `diagrams/uml_final.mmd`.
 
-## Getting started
-
-### Setup
+## Setup
 
 ```bash
 python -m venv .venv
@@ -32,19 +34,29 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Suggested workflow
+## How to Run
 
-1. Read the scenario carefully and identify requirements and edge cases.
-2. Draft a UML diagram (classes, attributes, methods, relationships).
-3. Convert UML into Python class stubs (no logic yet).
-4. Implement scheduling logic in small increments.
-5. Add tests to verify key behaviors.
-6. Connect your logic to the Streamlit UI in `app.py`.
-7. Refine UML so it matches what you actually built.
+**CLI demo:**
 
-## 🖥️ Sample Output
+```bash
+python main.py
+```
 
-Paste a sample of your app's CLI or Streamlit output here so a reader can see what a generated plan looks like:
+**Streamlit app:**
+
+```bash
+streamlit run app.py
+```
+
+**Tests:**
+
+```bash
+python -m pytest tests/test_pawpal.py -v
+```
+
+## Sample Output
+
+Output from `python main.py`:
 
 ```
 === Today's Schedule for Andres (2026-10-25) ===
@@ -80,7 +92,7 @@ Paste a sample of your app's CLI or Streamlit output here so a reader can see wh
   ⚠ Conflict: 'Play session' (Whiskers) and 'Flea medication' (Buddy) are both at 09:00 on 2026-10-25
 ```
 
-## 🧪 Testing PawPal+
+## Testing PawPal+
 
 ```bash
 python -m pytest tests/test_pawpal.py -v
@@ -108,9 +120,7 @@ tests/test_pawpal.py::test_empty_schedule PASSED                         [100%]
 
 **Confidence Level:** ⭐⭐⭐⭐ (4/5) -- All core behaviors are tested including edge cases. The one gap is that I don't test duration-based overlap since the conflict detector only checks exact time matches.
 
-## 📐 Smarter Scheduling
-
-> Fill in once you've implemented scheduling logic.
+## Smarter Scheduling
 
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|
@@ -119,14 +129,32 @@ tests/test_pawpal.py::test_empty_schedule PASSED                         [100%]
 | Conflict handling | `Scheduler.detect_conflicts()` | Flags tasks that share the same date and time, even across different pets. |
 | Recurring tasks | `Scheduler.mark_task_complete()` | Marks a task done and auto-creates the next instance for daily (+1 day) or weekly (+7 days) tasks. |
 
-## 📸 Demo Walkthrough
+## Demo Walkthrough
 
-Describe your app in numbered steps so a reader can follow along without watching a video:
+1. **Add pets:** Enter a pet name, species, and age, then click "Add Pet." The app supports multiple pets (e.g., a dog named Buddy and a cat named Whiskers).
+2. **Schedule tasks:** Select which pet a task is for, enter the description, time (HH:MM), duration, priority, and frequency (once/daily/weekly). Click "Add Task."
+3. **View today's schedule:** The schedule table shows all tasks sorted by time, with columns for time, description, pet, duration, priority, frequency, and status.
+4. **Filter tasks:** Use the dropdowns to filter by a specific pet or by status (Pending/Completed/All).
+5. **Mark a task complete:** Select a pending task from the dropdown and click "Mark Complete." If the task is daily or weekly, a new instance is automatically created for the next due date. A confirmation message shows the recurrence info.
+6. **Conflict warnings:** If two tasks (same pet or different pets) share the same time and date, a warning banner appears at the bottom of the schedule.
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+**CLI demo output** (from `python main.py`):
 
-**Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->
+```
+=== Today's Schedule for Andres (2026-10-25) ===
+
+  07:30 - Feed breakfast (Whiskers, 10 min) [priority: high] [Pending]
+  08:00 - Morning walk (Buddy, 30 min) [priority: high] [Pending]
+  09:00 - Flea medication (Buddy, 5 min) [priority: high] [Pending]
+  09:00 - Play session (Whiskers, 15 min) [priority: low] [Pending]
+  12:00 - Litter box clean (Whiskers, 10 min) [priority: medium] [Pending]
+  17:00 - Evening walk (Buddy, 30 min) [priority: medium] [Pending]
+
+=== Marking 'Morning walk' as complete ===
+  Completed: Morning walk on 2026-10-25
+  Next instance created: Morning walk on 2026-10-26
+
+=== Conflict Warnings ===
+
+  ⚠ Conflict: 'Play session' (Whiskers) and 'Flea medication' (Buddy) are both at 09:00 on 2026-10-25
+```

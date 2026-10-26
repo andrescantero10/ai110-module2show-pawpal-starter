@@ -42,13 +42,19 @@ Conflict detection uses exact time matching (same HH:MM on same date) rather tha
 
 **a. How you used AI**
 
-- How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
-- What kinds of prompts or questions were most helpful?
+I used Claude Code (agent mode) for pretty much the entire build. I gave it the full project spec and let it work through each phase: UML design, class skeletons, full implementation, Streamlit UI, tests, and docs. The most useful part was having it run terminal commands directly. It wrote the code, ran `python main.py` to check output, ran `pytest` to catch failures, and pasted real terminal output into the README. That loop of write-run-fix inside one tool saved a ton of time.
+
+The most helpful prompts were the ones that gave clear structure: "implement these four classes with these methods" rather than "build me a pet scheduler." Breaking the work into phases kept things focused.
+
+<!-- ANDRES: Add any personal detail about which specific prompts you found most helpful or any moment where you steered the AI in a different direction -->
 
 **b. Judgment and verification**
 
-- Describe one moment where you did not accept an AI suggestion as-is.
-- How did you evaluate or verify what the AI suggested?
+One thing I changed: Claude initially built the conflict detector to only check tasks within the same pet. I caught that the spec said "same pet or different pets" and had it update `detect_conflicts()` to look across all pets via `owner.get_all_tasks()`. The original version would have missed the Buddy/Whiskers 09:00 conflict that is the main demo scenario.
+
+I verified by running the test suite after every change and checking that `main.py` output matched what I expected. If the conflict warning did not show up, I knew something was wrong.
+
+<!-- ANDRES: If there was another moment where you rejected or modified an AI suggestion, add it here -->
 
 ---
 
@@ -70,12 +76,18 @@ I'm fairly confident (4 out of 5) that the scheduler works correctly for the sce
 
 **a. What went well**
 
-- What part of this project are you most satisfied with?
+I am most satisfied with how the Scheduler class turned out. It pulls tasks across all pets through the Owner, so every algorithm (sorting, filtering, conflicts, recurrence) works at the whole-household level, not just one pet at a time. The test suite also came together well. Having 13 tests that cover the core behaviors and edge cases gives me real confidence that the logic is correct.
+
+<!-- ANDRES: Add what you personally felt went best, like a specific feature or the overall workflow -->
 
 **b. What you would improve**
 
-- If you had another iteration, what would you improve or redesign?
+If I had another iteration I would upgrade conflict detection to check duration overlap instead of just exact time matches. I would also add a way to edit or delete tasks in the Streamlit UI (right now you can only add and complete). Persistence would be nice too so you don't lose everything on a page refresh.
+
+<!-- ANDRES: Add anything else you'd want to redesign or improve -->
 
 **c. Key takeaway**
 
-- What is one important thing you learned about designing systems or working with AI on this project?
+The biggest thing I learned is that being the "lead architect" with AI means you still have to understand the design. Claude Code wrote the code fast but I had to catch things like the cross-pet conflict check and make sure the class relationships actually made sense. The AI is a fast builder but not a substitute for thinking through the system design yourself. Breaking the project into phases (UML first, then skeletons, then implementation, then tests) kept things from getting messy.
+
+<!-- ANDRES: Add your own personal takeaway about working with AI or designing systems -->
