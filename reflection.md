@@ -2,15 +2,25 @@
 
 ## 1. System Design
 
+**Three core user actions:**
+1. Add a pet with basic info (name, species, age)
+2. Schedule a care task for a pet (description, time, duration, priority, frequency)
+3. View today's sorted schedule with conflict warnings and filtering
+
 **a. Initial design**
 
-- Briefly describe your initial UML design.
-- What classes did you include, and what responsibilities did you assign to each?
+I started with four classes mapped out in a Mermaid UML diagram:
+
+- **Task** (dataclass): holds everything about a single care task -- description, time, duration, priority, frequency, due date, completion status, and pet name. Has a `mark_complete()` method.
+- **Pet** (dataclass): stores the pet's name, species, age, and a list of tasks. Methods to add, remove, list, and count tasks.
+- **Owner**: the top-level container with a name and list of pets. Methods to add a pet, look one up by name, and gather all tasks across all pets.
+- **Scheduler**: takes an Owner reference and does the algorithmic work -- sorting by time, filtering, conflict detection, and handling task completion with recurrence.
+
+The relationships are: Owner owns many Pets, each Pet has many Tasks, and Scheduler works through the Owner to reach everything.
 
 **b. Design changes**
 
-- Did your design change during implementation?
-- If yes, describe at least one change and why you made it.
+Yes. My original Task class did not have a `pet_name` field. I added it during skeleton design because conflict detection and filtering need to know which pet a task belongs to without walking back up the object graph. This keeps the Scheduler methods simpler -- they can work with flat lists of tasks and still produce messages like "Conflict: Buddy and Whiskers both have tasks at 09:00". I also added `due_date` to Task so recurring tasks can generate their next instance on the correct future date.
 
 ---
 
