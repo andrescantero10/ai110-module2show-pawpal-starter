@@ -46,7 +46,7 @@ I used Claude Code (agent mode) for pretty much the entire build. I gave it the 
 
 The most helpful prompts were the ones that gave clear structure: "implement these four classes with these methods" rather than "build me a pet scheduler." Breaking the work into phases kept things focused.
 
-<!-- ANDRES: Add any personal detail about which specific prompts you found most helpful or any moment where you steered the AI in a different direction -->
+Honestly, speed was the most noticeable advantage. Watching it write code, run it, fix it, and move on in seconds made the whole project feel way more productive than doing it all manually.
 
 **b. Judgment and verification**
 
@@ -54,7 +54,7 @@ One thing I changed: Claude initially built the conflict detector to only check 
 
 I verified by running the test suite after every change and checking that `main.py` output matched what I expected. If the conflict warning did not show up, I knew something was wrong.
 
-<!-- ANDRES: If there was another moment where you rejected or modified an AI suggestion, add it here -->
+There were also moments where I had to stop and read the generated code twice before accepting it. For example, I was not sure the conflict detection was actually working right at first. I had to trace through the logic myself to make sure it was catching conflicts across different pets and not just within one pet's tasks.
 
 ---
 
@@ -78,16 +78,16 @@ I'm fairly confident (4 out of 5) that the scheduler works correctly for the sce
 
 I am most satisfied with how the Scheduler class turned out. It pulls tasks across all pets through the Owner, so every algorithm (sorting, filtering, conflicts, recurrence) works at the whole-household level, not just one pet at a time. The test suite also came together well. Having 13 tests that cover the core behaviors and edge cases gives me real confidence that the logic is correct.
 
-<!-- ANDRES: Add what you personally felt went best, like a specific feature or the overall workflow -->
+The thing I like most is how the Scheduler pulls tasks across all pets. It feels like the right design. One method call and you get every task for every pet, sorted and ready to go.
 
 **b. What you would improve**
 
 If I had another iteration I would upgrade conflict detection to check duration overlap instead of just exact time matches. I would also add a way to edit or delete tasks in the Streamlit UI (right now you can only add and complete). Persistence would be nice too so you don't lose everything on a page refresh.
 
-<!-- ANDRES: Add anything else you'd want to redesign or improve -->
+I would also add a calendar view so you can see the whole week laid out instead of just today's list. That would make it feel more like a real planner.
 
 **c. Key takeaway**
 
 The biggest thing I learned is that being the "lead architect" with AI means you still have to understand the design. Claude Code wrote the code fast but I had to catch things like the cross-pet conflict check and make sure the class relationships actually made sense. The AI is a fast builder but not a substitute for thinking through the system design yourself. Breaking the project into phases (UML first, then skeletons, then implementation, then tests) kept things from getting messy.
 
-<!-- ANDRES: Add your own personal takeaway about working with AI or designing systems -->
+Using AI is the smartest way to code right now. You learn faster than ever and you deploy faster than ever. But you still have to know what you're looking at. The speed only helps if you can tell when something is wrong.
