@@ -83,18 +83,30 @@ Paste a sample of your app's CLI or Streamlit output here so a reader can see wh
 ## 🧪 Testing PawPal+
 
 ```bash
-# Run the full test suite:
-pytest
-
-# Run with coverage:
-pytest --cov
+python -m pytest tests/test_pawpal.py -v
 ```
 
-Sample test output:
+**What's covered:** task completion, task counting, chronological sorting, daily/weekly/once recurrence, conflict detection (true and false positives), filtering by pet and status, and edge cases (empty pets, empty owners, empty schedules).
 
 ```
-# Paste your pytest output here
+tests/test_pawpal.py::test_mark_complete_flips_status PASSED             [  7%]
+tests/test_pawpal.py::test_add_task_increases_count PASSED               [ 15%]
+tests/test_pawpal.py::test_sort_by_time_chronological PASSED             [ 23%]
+tests/test_pawpal.py::test_recurrence_daily_creates_next_day PASSED      [ 30%]
+tests/test_pawpal.py::test_recurrence_weekly_creates_next_week PASSED    [ 38%]
+tests/test_pawpal.py::test_recurrence_once_does_not_recur PASSED         [ 46%]
+tests/test_pawpal.py::test_conflict_detection_same_time PASSED           [ 53%]
+tests/test_pawpal.py::test_conflict_detection_no_false_positive PASSED   [ 61%]
+tests/test_pawpal.py::test_filter_by_pet PASSED                          [ 69%]
+tests/test_pawpal.py::test_filter_by_status PASSED                       [ 76%]
+tests/test_pawpal.py::test_pet_with_no_tasks PASSED                      [ 84%]
+tests/test_pawpal.py::test_owner_with_no_pets PASSED                     [ 92%]
+tests/test_pawpal.py::test_empty_schedule PASSED                         [100%]
+
+13 passed in 0.02s
 ```
+
+**Confidence Level:** ⭐⭐⭐⭐ (4/5) -- All core behaviors are tested including edge cases. The one gap is that I don't test duration-based overlap since the conflict detector only checks exact time matches.
 
 ## 📐 Smarter Scheduling
 

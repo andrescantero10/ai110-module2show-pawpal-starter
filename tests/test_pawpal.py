@@ -16,3 +16,133 @@ def test_add_task_increases_count():
     assert pet.task_count() == 1
     pet.add_task(Task("Feed", "09:00", 10, "medium"))
     assert pet.task_count() == 2
+
+
+def test_sort_by_time_chronological():
+    owner = Owner("Test")
+    pet = Pet("Dog", "dog", 2)
+    owner.add_pet(pet)
+    pet.add_task(Task("Late", "17:00", 30, "low", due_date=date.today()))
+    pet.add_task(Task("Early", "07:00", 15, "high", due_date=date.today()))
+    pet.add_task(Task("Mid", "12:00", 20, "medium", due_date=date.today()))
+    scheduler = Scheduler(owner)
+    sorted_tasks = scheduler.sort_by_time(owner.get_all_tasks())
+    times = [t.time for t in sorted_tasks]
+    assert times == ["07:00", "12:00", "17:00"]
+
+
+def test_recurrence_daily_creates_next_day():
+    owner = Owner("Test")
+    pet = Pet("Dog", "dog", 2)
+    owner.add_pet(pet)
+    today = date.today()
+    task = Task("Walk", "08:00", 30, "high", frequency="daily", due_date=today)
+    pet.add_task(task)
+    scheduler = Scheduler(owner)
+    new_task = scheduler.mark_task_complete(task)
+    assert task.completed is True
+    assert new_task is not None
+    assert new_task.due_date == today + timedelta(days=1)
+    assert new_task.completed is False
+    assert pet.task_count() == 2
+
+
+def test_recurrence_weekly_creates_next_week():
+    owner = Owner("Test")
+    pet = Pet("Cat", "cat", 3)
+    owner.add_pet(pet)
+    today = date.today()
+    task = Task("Grooming", "10:00", 20, "medium", frequency="weekly", due_date=today)
+    pet.add_task(task)
+    scheduler = Scheduler(owner)
+    new_task = scheduler.mark_task_complete(task)
+    assert new_task is not None
+    assert new_task.due_date == today + timedelta(weeks=1)
+
+
+def test_recurrence_once_does_not_recur():
+    owner = Owner("Test")
+    pet = Pet("Dog", "dog", 2)
+    owner.add_pet(pet)
+    task = Task("Vet visit", "14:00", 60, "high", frequency="once")
+    pet.add_task(task)
+    scheduler = Scheduler(owner)
+    result = scheduler.mark_task_complete(task)
+    assert result is None
+    assert pet.task_count() == 1
+
+
+def test_conflict_detection_same_time():
+    owner = Owner("Test")
+    pet1 = Pet("Dog", "dog", 2)
+    pet2 = Pet("Cat", "cat", 3)
+    owner.add_pet(pet1)
+    owner.add_pet(pet2)
+    today = date.today()
+    pet1.add_task(Task("Walk", "09:00", 30, "high", due_date=today))
+    pet2.add_task(Task("Feed", "09:00", 10, "high", due_date=today))
+    scheduler = Scheduler(owner)
+    conflicts = scheduler.detect_conflicts()
+    assert len(conflicts) == 1
+    assert "09:00" in conflicts[0]
+
+
+def test_conflict_detection_no_false_positive():
+    owner = Owner("Test")
+    pet = Pet("Dog", "dog", 2)
+    owner.add_pet(pet)
+    today = date.today()
+    pet.add_task(Task("Walk", "08:00", 30, "high", due_date=today))
+    pet.add_task(Task("Feed", "09:00", 10, "high", due_date=today))
+    scheduler = Scheduler(owner)
+    conflicts = scheduler.detect_conflicts()
+    assert len(conflicts) == 0
+
+
+def test_filter_by_pet():
+    owner = Owner("Test")
+    dog = Pet("Dog", "dog", 2)
+    cat = Pet("Cat", "cat", 3)
+    owner.add_pet(dog)
+    owner.add_pet(cat)
+    dog.add_task(Task("Walk", "08:00", 30, "high"))
+    cat.add_task(Task("Feed", "09:00", 10, "high"))
+    scheduler = Scheduler(owner)
+    dog_tasks = scheduler.filter_tasks(pet_name="Dog")
+    assert len(dog_tasks) == 1
+    assert dog_tasks[0].description == "Walk"
+
+
+def test_filter_by_status():
+    owner = Owner("Test")
+    pet = Pet("Dog", "dog", 2)
+    owner.add_pet(pet)
+    t1 = Task("Walk", "08:00", 30, "high")
+    t2 = Task("Feed", "09:00", 10, "high")
+    pet.add_task(t1)
+    pet.add_task(t2)
+    t1.mark_complete()
+    scheduler = Scheduler(owner)
+    pending = scheduler.filter_tasks(completed=False)
+    assert len(pending) == 1
+    assert pending[0].description == "Feed"
+
+
+def test_pet_with_no_tasks():
+    pet = Pet("Empty", "fish", 1)
+    assert pet.task_count() == 0
+    assert pet.get_tasks() == []
+
+
+def test_owner_with_no_pets():
+    owner = Owner("Lonely")
+    assert owner.get_all_tasks() == []
+    assert owner.get_pet("Nobody") is None
+
+
+def test_empty_schedule():
+    owner = Owner("Test")
+    scheduler = Scheduler(owner)
+    assert scheduler.get_todays_schedule() == []
+    assert scheduler.detect_conflicts() == []
+    assert scheduler.filter_tasks() == []

@@ -56,13 +56,13 @@ Conflict detection uses exact time matching (same HH:MM on same date) rather tha
 
 **a. What you tested**
 
-- What behaviors did you test?
-- Why were these tests important?
+I wrote 13 tests covering: mark_complete flipping a task's status, add_task increasing the count, chronological sorting of out-of-order tasks, daily recurrence creating a next-day task, weekly recurrence creating a next-week task, "once" tasks not recurring, conflict detection catching same-time tasks across different pets, no false positives when times differ, filtering by pet name, filtering by completion status, a pet with zero tasks, an owner with zero pets, and an empty schedule returning empty lists.
+
+These tests matter because each one targets a specific behavior the scheduler promises. Without them, a small change to sorting or recurrence could silently break the whole daily plan.
 
 **b. Confidence**
 
-- How confident are you that your scheduler works correctly?
-- What edge cases would you test next if you had more time?
+I'm fairly confident (4 out of 5) that the scheduler works correctly for the scenarios it handles. The main gap is duration-based overlap. Right now, two tasks at 08:00 and 08:15 would not be flagged as conflicting even if the first one runs 30 minutes. If I had more time I would also test tasks spanning midnight and tasks with invalid time formats.
 
 ---
 
