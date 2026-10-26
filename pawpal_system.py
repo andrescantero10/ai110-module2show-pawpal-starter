@@ -121,6 +121,42 @@ class Scheduler:
                 seen[key] = task
         return warnings
 
+    def find_next_available_slot(self, target_date, duration_minutes, start="08:00", end="21:00"):
+        """Find the next available time slot on a given date that fits the requested duration."""
+        def to_minutes(time_str):
+            h, m = time_str.split(":")
+            return int(h) * 60 + int(m)
+
+        def from_minutes(mins):
+            return f"{mins // 60:02d}:{mins % 60:02d}"
+
+        start_min = to_minutes(start)
+        end_min = to_minutes(end)
+
+        # Gather all tasks on target_date that aren't completed
+        day_tasks = [t for t in self.owner.get_all_tasks()
+                     if t.due_date == target_date and not t.completed]
+        # Build list of occupied intervals (start, end) in minutes
+        occupied = []
+        for t in day_tasks:
+            t_start = to_minutes(t.time)
+            t_end = t_start + t.duration_minutes
+            occupied.append((t_start, t_end))
+        occupied.sort()
+
+        # Walk through the day looking for a gap
+        current = start_min
+        for occ_start, occ_end in occupied:
+            if current + duration_minutes <= occ_start:
+                return from_minutes(current)
+            current = max(current, occ_end)
+
+        # Check if there's room after the last task
+        if current + duration_minutes <= end_min:
+            return from_minutes(current)
+
+        return None  # No slot available
+
     def mark_task_complete(self, task):
         """Mark a task complete and create the next instance if recurring."""
         task.mark_complete()

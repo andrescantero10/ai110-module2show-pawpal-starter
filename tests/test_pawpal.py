@@ -140,6 +140,39 @@ def test_owner_with_no_pets():
     assert owner.get_pet("Nobody") is None
 
 
+def test_find_next_available_slot_basic():
+    owner = Owner("Test")
+    pet = Pet("Dog", "dog", 2)
+    owner.add_pet(pet)
+    today = date.today()
+    pet.add_task(Task("Walk", "08:00", 30, "high", due_date=today))
+    pet.add_task(Task("Feed", "09:00", 15, "high", due_date=today))
+    scheduler = Scheduler(owner)
+    slot = scheduler.find_next_available_slot(today, 20)
+    assert slot == "08:30"  # After the 08:00-08:30 walk, before 09:00 feed
+
+
+def test_find_next_available_slot_no_room():
+    owner = Owner("Test")
+    pet = Pet("Dog", "dog", 2)
+    owner.add_pet(pet)
+    today = date.today()
+    # Fill the entire day
+    pet.add_task(Task("Long task", "08:00", 780, "high", due_date=today))  # 08:00-21:00
+    scheduler = Scheduler(owner)
+    slot = scheduler.find_next_available_slot(today, 30)
+    assert slot is None
+
+
+def test_find_next_available_slot_empty_day():
+    owner = Owner("Test")
+    pet = Pet("Dog", "dog", 2)
+    owner.add_pet(pet)
+    scheduler = Scheduler(owner)
+    slot = scheduler.find_next_available_slot(date.today(), 30)
+    assert slot == "08:00"
+
+
 def test_empty_schedule():
     owner = Owner("Test")
     scheduler = Scheduler(owner)
