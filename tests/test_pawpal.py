@@ -173,6 +173,25 @@ def test_find_next_available_slot_empty_day():
     assert slot == "08:00"
 
 
+def test_json_round_trip(tmp_path):
+    owner = Owner("Andres")
+    pet = Pet("Buddy", "dog", 3)
+    owner.add_pet(pet)
+    today = date.today()
+    pet.add_task(Task("Walk", "08:00", 30, "high", "daily", today))
+    path = str(tmp_path / "test_data.json")
+    owner.save_to_json(path)
+    loaded = Owner.load_from_json(path)
+    assert loaded.name == "Andres"
+    assert len(loaded.pets) == 1
+    assert loaded.pets[0].name == "Buddy"
+    assert loaded.pets[0].task_count() == 1
+    task = loaded.pets[0].get_tasks()[0]
+    assert task.description == "Walk"
+    assert task.due_date == today
+    assert task.frequency == "daily"
+
+
 def test_empty_schedule():
     owner = Owner("Test")
     scheduler = Scheduler(owner)

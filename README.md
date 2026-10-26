@@ -129,6 +129,14 @@ tests/test_pawpal.py::test_empty_schedule PASSED                         [100%]
 | Conflict handling | `Scheduler.detect_conflicts()` | Flags tasks that share the same date and time, even across different pets. |
 | Recurring tasks | `Scheduler.mark_task_complete()` | Marks a task done and auto-creates the next instance for daily (+1 day) or weekly (+7 days) tasks. |
 
+## JSON Persistence
+
+PawPal+ saves all data to `data.json` automatically. When you add a pet, add a task, or mark a task complete in the Streamlit app, the owner/pet/task data is written to disk. On the next app launch, it loads from `data.json` if the file exists.
+
+- **Methods:** `Owner.save_to_json(path)` and `Owner.load_from_json(path)` with custom `to_dict()`/`from_dict()` on Task and Pet.
+- **Files modified:** `pawpal_system.py` (added serialization methods), `app.py` (load on startup, save after mutations), `.gitignore` (excludes `data.json`).
+- **Date handling:** `due_date` is stored as an ISO string (`"2026-10-25"`) and parsed back with `date.fromisoformat()`.
+
 ## Demo Walkthrough
 
 1. **Add pets:** Enter a pet name, species, and age, then click "Add Pet." The app supports multiple pets (e.g., a dog named Buddy and a cat named Whiskers).

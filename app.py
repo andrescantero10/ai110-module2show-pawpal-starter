@@ -1,15 +1,21 @@
+import os
 import streamlit as st
 from datetime import date
 from pawpal_system import Task, Pet, Owner, Scheduler
+
+DATA_FILE = "data.json"
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
 
 st.title("🐾 PawPal+")
 st.markdown("A pet care planning assistant that helps you schedule and manage tasks for your pets.")
 
-# Initialize session state
+# Initialize session state (load from JSON if available)
 if "owner" not in st.session_state:
-    st.session_state.owner = Owner("My Owner")
+    if os.path.exists(DATA_FILE):
+        st.session_state.owner = Owner.load_from_json(DATA_FILE)
+    else:
+        st.session_state.owner = Owner("My Owner")
 
 owner = st.session_state.owner
 scheduler = Scheduler(owner)
@@ -34,6 +40,7 @@ if st.button("Add Pet"):
     if new_pet_name.strip():
         if owner.get_pet(new_pet_name.strip()) is None:
             owner.add_pet(Pet(name=new_pet_name.strip(), species=new_pet_species, age=new_pet_age))
+            owner.save_to_json(DATA_FILE)
             st.success(f"Added {new_pet_name}!")
             st.rerun()
         else:
@@ -76,6 +83,7 @@ if owner.pets:
                 due_date=date.today(),
             )
             pet.add_task(new_task)
+            owner.save_to_json(DATA_FILE)
             st.success(f"Added '{task_desc}' for {task_pet}!")
             st.rerun()
 
@@ -126,6 +134,7 @@ if owner.pets:
             if st.button("Mark Complete"):
                 selected_task = task_options[selected_label]
                 new_task = scheduler.mark_task_complete(selected_task)
+                owner.save_to_json(DATA_FILE)
                 st.success(f"Marked '{selected_task.description}' as complete!")
                 if new_task:
                     st.info(f"Recurring task: next '{new_task.description}' scheduled for {new_task.due_date}")
