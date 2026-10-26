@@ -28,13 +28,13 @@ Yes. My original Task class did not have a `pet_name` field. I added it during s
 
 **a. Constraints and priorities**
 
-- What constraints does your scheduler consider (for example: time, priority, preferences)?
-- How did you decide which constraints mattered most?
+The scheduler considers time (tasks have a specific HH:MM slot), priority (high/medium/low), frequency (once/daily/weekly), and pet assignment. Time is the primary sort key because a pet owner's day revolves around when things happen, not just what's important. Priority matters for deciding what to do first when two tasks land at the same time, but the base sorting is chronological so the schedule reads like a timeline.
+
+I decided time mattered most because the whole point is a daily plan you can follow in order. Priority becomes a tiebreaker and a filter, not the primary axis.
 
 **b. Tradeoffs**
 
-- Describe one tradeoff your scheduler makes.
-- Why is that tradeoff reasonable for this scenario?
+Conflict detection uses exact time matching (same HH:MM on same date) rather than full duration overlap checking. Two tasks at 08:00 and 08:15 would not be flagged even if the first one is 30 minutes long. I chose this because it keeps the logic simple and easy to reason about. For a pet care app, most conflicts are "I accidentally scheduled two things at the exact same time," not subtle overlaps. A full interval-overlap check would add complexity without much practical benefit for this use case. If I had more time I would upgrade to duration-aware overlap detection.
 
 ---
 

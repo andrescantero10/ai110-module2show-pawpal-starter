@@ -47,11 +47,37 @@ pip install -r requirements.txt
 Paste a sample of your app's CLI or Streamlit output here so a reader can see what a generated plan looks like:
 
 ```
-# e.g.:
-# Daily plan for Biscuit (Golden Retriever):
-#   08:00 — Morning walk (30 min) [priority: high]
-#   09:00 — Feeding (10 min) [priority: high]
-#   ...
+=== Today's Schedule for Andres (2026-10-25) ===
+
+  07:30 - Feed breakfast (Whiskers, 10 min) [priority: high] [Pending]
+  08:00 - Morning walk (Buddy, 30 min) [priority: high] [Pending]
+  09:00 - Flea medication (Buddy, 5 min) [priority: high] [Pending]
+  09:00 - Play session (Whiskers, 15 min) [priority: low] [Pending]
+  12:00 - Litter box clean (Whiskers, 10 min) [priority: medium] [Pending]
+  17:00 - Evening walk (Buddy, 30 min) [priority: medium] [Pending]
+
+=== Buddy's Tasks ===
+
+  17:00 - Evening walk [medium]
+  08:00 - Morning walk [high]
+  09:00 - Flea medication [high]
+
+=== Incomplete Tasks Only ===
+
+  17:00 - Evening walk (Buddy) [medium]
+  08:00 - Morning walk (Buddy) [high]
+  09:00 - Flea medication (Buddy) [high]
+  07:30 - Feed breakfast (Whiskers) [high]
+  12:00 - Litter box clean (Whiskers) [medium]
+  09:00 - Play session (Whiskers) [low]
+
+=== Marking 'Morning walk' as complete ===
+  Completed: Morning walk on 2026-10-25
+  Next instance created: Morning walk on 2026-10-26
+
+=== Conflict Warnings ===
+
+  ⚠ Conflict: 'Play session' (Whiskers) and 'Flea medication' (Buddy) are both at 09:00 on 2026-10-25
 ```
 
 ## 🧪 Testing PawPal+
@@ -76,10 +102,10 @@ Sample test output:
 
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|
-| Task sorting | | e.g., by priority, duration |
-| Filtering | | e.g., skip tasks if time runs out |
-| Conflict handling | | e.g., overlapping time slots |
-| Recurring tasks | | e.g., daily vs. weekly |
+| Task sorting | `Scheduler.sort_by_time()` | Sorts tasks chronologically by parsing "HH:MM" into total minutes for comparison. |
+| Filtering | `Scheduler.filter_tasks()` | Filters tasks by pet name and/or completion status across all pets. |
+| Conflict handling | `Scheduler.detect_conflicts()` | Flags tasks that share the same date and time, even across different pets. |
+| Recurring tasks | `Scheduler.mark_task_complete()` | Marks a task done and auto-creates the next instance for daily (+1 day) or weekly (+7 days) tasks. |
 
 ## 📸 Demo Walkthrough
 
