@@ -173,6 +173,21 @@ def test_find_next_available_slot_empty_day():
     assert slot == "08:00"
 
 
+def test_sort_by_priority_then_time():
+    owner = Owner("Test")
+    pet = Pet("Dog", "dog", 2)
+    owner.add_pet(pet)
+    today = date.today()
+    pet.add_task(Task("Low early", "07:00", 10, "low", due_date=today))
+    pet.add_task(Task("High late", "17:00", 30, "high", due_date=today))
+    pet.add_task(Task("Medium mid", "12:00", 20, "medium", due_date=today))
+    pet.add_task(Task("High early", "08:00", 15, "high", due_date=today))
+    scheduler = Scheduler(owner)
+    result = scheduler.sort_by_priority_then_time(owner.get_all_tasks())
+    descriptions = [t.description for t in result]
+    assert descriptions == ["High early", "High late", "Medium mid", "Low early"]
+
+
 def test_json_round_trip(tmp_path):
     owner = Owner("Andres")
     pet = Pet("Buddy", "dog", 3)

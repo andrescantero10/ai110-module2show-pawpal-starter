@@ -129,6 +129,23 @@ tests/test_pawpal.py::test_empty_schedule PASSED                         [100%]
 | Conflict handling | `Scheduler.detect_conflicts()` | Flags tasks that share the same date and time, even across different pets. |
 | Recurring tasks | `Scheduler.mark_task_complete()` | Marks a task done and auto-creates the next instance for daily (+1 day) or weekly (+7 days) tasks. |
 
+## Priority-Based Scheduling
+
+`Scheduler.sort_by_priority_then_time()` sorts tasks by priority (high first, then medium, then low) and by time within each priority level. This gives a view of "what matters most" rather than just "what comes first."
+
+CLI output from `python main.py`:
+
+```
+=== Schedule Sorted by Priority ===
+
+  [HIGH] 07:30 - Feed breakfast (Whiskers)
+  [HIGH] 08:00 - Morning walk (Buddy)
+  [HIGH] 09:00 - Flea medication (Buddy)
+  [MEDIUM] 12:00 - Litter box clean (Whiskers)
+  [MEDIUM] 17:00 - Evening walk (Buddy)
+  [LOW] 09:00 - Play session (Whiskers)
+```
+
 ## JSON Persistence
 
 PawPal+ saves all data to `data.json` automatically. When you add a pet, add a task, or mark a task complete in the Streamlit app, the owner/pet/task data is written to disk. On the next app launch, it loads from `data.json` if the file exists.

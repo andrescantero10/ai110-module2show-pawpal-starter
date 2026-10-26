@@ -45,6 +45,13 @@ def main():
     if new_task:
         print(f"  Next instance created: {new_task.description} on {new_task.due_date}")
 
+    # Priority-based sorting
+    print(f"\n=== Schedule Sorted by Priority ===\n")
+    all_tasks = [t for t in owner.get_all_tasks() if not t.completed]
+    priority_sorted = scheduler.sort_by_priority_then_time(all_tasks)
+    for task in priority_sorted:
+        print(f"  [{task.priority.upper()}] {task.time} - {task.description} ({task.pet_name})")
+
     # Conflict detection (Buddy's flea med and Whiskers' play session both at 09:00)
     print(f"\n=== Conflict Warnings ===\n")
     conflicts = scheduler.detect_conflicts()

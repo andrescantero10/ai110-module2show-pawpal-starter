@@ -159,6 +159,16 @@ class Scheduler:
             return int(hours) * 60 + int(minutes)
         return sorted(tasks, key=time_to_minutes)
 
+    def sort_by_priority_then_time(self, tasks):
+        """Sort tasks by priority (high first) then by time within each priority."""
+        priority_order = {"high": 0, "medium": 1, "low": 2}
+
+        def sort_key(t):
+            hours, minutes = t.time.split(":")
+            return (priority_order.get(t.priority, 3), int(hours) * 60 + int(minutes))
+
+        return sorted(tasks, key=sort_key)
+
     def filter_tasks(self, pet_name=None, completed=None):
         """Filter all tasks by pet name and/or completion status."""
         tasks = self.owner.get_all_tasks()
