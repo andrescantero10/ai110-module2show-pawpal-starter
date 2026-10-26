@@ -59,37 +59,51 @@ python -m pytest tests/test_pawpal.py -v
 Output from `python main.py`:
 
 ```
-=== Today's Schedule for Andres (2026-10-25) ===
+============================================================
+  Today's Schedule for Andres (2026-10-25)
+============================================================
 
-  07:30 - Feed breakfast (Whiskers, 10 min) [priority: high] [Pending]
-  08:00 - Morning walk (Buddy, 30 min) [priority: high] [Pending]
-  09:00 - Flea medication (Buddy, 5 min) [priority: high] [Pending]
-  09:00 - Play session (Whiskers, 15 min) [priority: low] [Pending]
-  12:00 - Litter box clean (Whiskers, 10 min) [priority: medium] [Pending]
-  17:00 - Evening walk (Buddy, 30 min) [priority: medium] [Pending]
+╭────────┬──────────────────┬────────────┬────────────┬────────────┬──────────╮
+│ Time   │ Task             │ Pet        │ Duration   │ Priority   │ Status   │
+├────────┼──────────────────┼────────────┼────────────┼────────────┼──────────┤
+│ 07:30  │ Feed breakfast   │ 🐱 Whiskers │ 10 min     │ 🔴 high     │ ⏳        │
+├────────┼──────────────────┼────────────┼────────────┼────────────┼──────────┤
+│ 08:00  │ Morning walk     │ 🐶 Buddy    │ 30 min     │ 🔴 high     │ ⏳        │
+├────────┼──────────────────┼────────────┼────────────┼────────────┼──────────┤
+│ 09:00  │ Flea medication  │ 🐶 Buddy    │ 5 min      │ 🔴 high     │ ⏳        │
+├────────┼──────────────────┼────────────┼────────────┼────────────┼──────────┤
+│ 09:00  │ Play session     │ 🐱 Whiskers │ 15 min     │ 🟢 low      │ ⏳        │
+├────────┼──────────────────┼────────────┼────────────┼────────────┼──────────┤
+│ 12:00  │ Litter box clean │ 🐱 Whiskers │ 10 min     │ 🟡 medium   │ ⏳        │
+├────────┼──────────────────┼────────────┼────────────┼────────────┼──────────┤
+│ 17:00  │ Evening walk     │ 🐶 Buddy    │ 30 min     │ 🟡 medium   │ ⏳        │
+╰────────┴──────────────────┴────────────┴────────────┴────────────┴──────────╯
 
-=== Buddy's Tasks ===
+--- Marking 'Morning walk' as complete ---
+  ✅ Completed: Morning walk on 2026-10-25
+  ⏳ Next instance created: Morning walk on 2026-10-26
 
-  17:00 - Evening walk [medium]
-  08:00 - Morning walk [high]
-  09:00 - Flea medication [high]
+--- Schedule Sorted by Priority ---
 
-=== Incomplete Tasks Only ===
+╭────────────┬────────┬──────────────────┬──────────╮
+│ Priority   │ Time   │ Task             │ Pet      │
+├────────────┼────────┼──────────────────┼──────────┤
+│ 🔴 high     │ 07:30  │ Feed breakfast   │ Whiskers │
+├────────────┼────────┼──────────────────┼──────────┤
+│ 🔴 high     │ 08:00  │ Morning walk     │ Buddy    │
+├────────────┼────────┼──────────────────┼──────────┤
+│ 🔴 high     │ 09:00  │ Flea medication  │ Buddy    │
+├────────────┼────────┼──────────────────┼──────────┤
+│ 🟡 medium   │ 12:00  │ Litter box clean │ Whiskers │
+├────────────┼────────┼──────────────────┼──────────┤
+│ 🟡 medium   │ 17:00  │ Evening walk     │ Buddy    │
+├────────────┼────────┼──────────────────┼──────────┤
+│ 🟢 low      │ 09:00  │ Play session     │ Whiskers │
+╰────────────┴────────┴──────────────────┴──────────╯
 
-  17:00 - Evening walk (Buddy) [medium]
-  08:00 - Morning walk (Buddy) [high]
-  09:00 - Flea medication (Buddy) [high]
-  07:30 - Feed breakfast (Whiskers) [high]
-  12:00 - Litter box clean (Whiskers) [medium]
-  09:00 - Play session (Whiskers) [low]
+--- Conflict Warnings ---
 
-=== Marking 'Morning walk' as complete ===
-  Completed: Morning walk on 2026-10-25
-  Next instance created: Morning walk on 2026-10-26
-
-=== Conflict Warnings ===
-
-  ⚠ Conflict: 'Play session' (Whiskers) and 'Flea medication' (Buddy) are both at 09:00 on 2026-10-25
+  ⚠️  Conflict: 'Play session' (Whiskers) and 'Flea medication' (Buddy) are both at 09:00 on 2026-10-25
 ```
 
 ## Testing PawPal+
@@ -129,6 +143,16 @@ tests/test_pawpal.py::test_empty_schedule PASSED                         [100%]
 | Conflict handling | `Scheduler.detect_conflicts()` | Flags tasks that share the same date and time, even across different pets. |
 | Recurring tasks | `Scheduler.mark_task_complete()` | Marks a task done and auto-creates the next instance for daily (+1 day) or weekly (+7 days) tasks. |
 
+## Formatted CLI Output
+
+The CLI demo (`main.py`) uses the `tabulate` library with the `rounded_grid` table format for clean, bordered tables. It also uses emoji indicators:
+
+- **Priority:** 🔴 high, 🟡 medium, 🟢 low
+- **Status:** ✅ completed, ⏳ pending
+- **Species:** 🐶 dog, 🐱 cat, 🐦 bird, 🐰 rabbit
+
+Functions used: `tabulate()` from the `tabulate` package, plus helper functions `status_icon()`, `priority_label()`, and mappings `PRIORITY_EMOJI` and `SPECIES_EMOJI` in `main.py`.
+
 ## Priority-Based Scheduling
 
 `Scheduler.sort_by_priority_then_time()` sorts tasks by priority (high first, then medium, then low) and by time within each priority level. This gives a view of "what matters most" rather than just "what comes first."
@@ -166,20 +190,25 @@ PawPal+ saves all data to `data.json` automatically. When you add a pet, add a t
 **CLI demo output** (from `python main.py`):
 
 ```
-=== Today's Schedule for Andres (2026-10-25) ===
+============================================================
+  Today's Schedule for Andres (2026-10-25)
+============================================================
 
-  07:30 - Feed breakfast (Whiskers, 10 min) [priority: high] [Pending]
-  08:00 - Morning walk (Buddy, 30 min) [priority: high] [Pending]
-  09:00 - Flea medication (Buddy, 5 min) [priority: high] [Pending]
-  09:00 - Play session (Whiskers, 15 min) [priority: low] [Pending]
-  12:00 - Litter box clean (Whiskers, 10 min) [priority: medium] [Pending]
-  17:00 - Evening walk (Buddy, 30 min) [priority: medium] [Pending]
+╭────────┬──────────────────┬────────────┬────────────┬────────────┬──────────╮
+│ Time   │ Task             │ Pet        │ Duration   │ Priority   │ Status   │
+├────────┼──────────────────┼────────────┼────────────┼────────────┼──────────┤
+│ 07:30  │ Feed breakfast   │ 🐱 Whiskers │ 10 min     │ 🔴 high     │ ⏳        │
+│ 08:00  │ Morning walk     │ 🐶 Buddy    │ 30 min     │ 🔴 high     │ ⏳        │
+│ 09:00  │ Flea medication  │ 🐶 Buddy    │ 5 min      │ 🔴 high     │ ⏳        │
+│ 09:00  │ Play session     │ 🐱 Whiskers │ 15 min     │ 🟢 low      │ ⏳        │
+│ 12:00  │ Litter box clean │ 🐱 Whiskers │ 10 min     │ 🟡 medium   │ ⏳        │
+│ 17:00  │ Evening walk     │ 🐶 Buddy    │ 30 min     │ 🟡 medium   │ ⏳        │
+╰────────┴──────────────────┴────────────┴────────────┴────────────┴──────────╯
 
-=== Marking 'Morning walk' as complete ===
-  Completed: Morning walk on 2026-10-25
-  Next instance created: Morning walk on 2026-10-26
+--- Marking 'Morning walk' as complete ---
+  ✅ Completed: Morning walk on 2026-10-25
+  ⏳ Next instance created: Morning walk on 2026-10-26
 
-=== Conflict Warnings ===
-
-  ⚠ Conflict: 'Play session' (Whiskers) and 'Flea medication' (Buddy) are both at 09:00 on 2026-10-25
+--- Conflict Warnings ---
+  ⚠️  Conflict: 'Play session' (Whiskers) and 'Flea medication' (Buddy) are both at 09:00 on 2026-10-25
 ```
